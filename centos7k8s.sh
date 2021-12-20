@@ -1,6 +1,7 @@
 #!/bin/bash
 
 kube::master(){
+hostnamectl set-hostname master-node
 sudo kubeadm config images pull
 sudo kubeadm reset -f
 sudo kubeadm init \
@@ -11,6 +12,8 @@ sudo mkdir -p $HOME/.kube
 sudo rm -r $HOME/.kube/config -f
 sudo cp -i /etc/kubernetes/admin.conf $HOME/.kube/config
 sudo chown $(id -u):$(id -g) $HOME/.kube/config
+export kubever=$(sudo kubectl version | base64 | tr -d '\n')
+sudo kubectl apply -f "https://cloud.weave.works/k8s/net?k8s-version=$kubever"
 sudo kubectl get nodes
 }
 
@@ -21,15 +24,15 @@ sudo cat <<EOF> /etc/hosts
 192.168.1.212 node-1 
 EOF
 sudo cat  /etc/hosts
-systemctl stop firewalld
-systemctl disable --now firewalld
-setenforce 0
-sed -i --follow-symlinks 's/SELINUX=enforcing/SELINUX=disabled/g' /etc/sysconfig/selinux
-cat /etc/sysconfig/selinux
-modprobe overlay
-modprobe br_netfilter
-lsmod | grep br_netfilter
-lsmod | grep overlay
+sudo systemctl stop firewalld
+sudo systemctl disable --now firewalld
+sudo setenforce 0
+sudo sed -i --follow-symlinks 's/SELINUX=enforcing/SELINUX=disabled/g' /etc/sysconfig/selinux
+sudo cat /etc/sysconfig/selinux
+sudo modprobe overlay
+sudo modprobe br_netfilter
+sudo lsmod | grep br_netfilter
+sudo lsmod | grep overlay
 sudo tee /etc/sysctl.d/kubernetes.conf<<EOF
 net.bridge.bridge-nf-call-iptables = 1
 net.ipv4.ip_forward = 1
@@ -38,7 +41,9 @@ sudo cat /etc/sysctl.d/kubernetes.conf
 sudo sysctl --system
 sudo swapoff -a
 sudo sed -i '/swap/d' /etc/fstab
-cat /etc/fstab
+sudo cat /etc/fstab
+#sudo hostnamectl set-hostname master-node
+#sudo exec bash
 }
 
 
