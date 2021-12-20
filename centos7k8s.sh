@@ -5,6 +5,7 @@ export masterhostname="master-node"
 export hosts=$(cat <<EOF
 192.168.1.211 master-node
 192.168.1.212 node-1
+192.168.1.212 node-2
 EOF
 )
 }
