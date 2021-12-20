@@ -1,7 +1,7 @@
 #!/bin/bash
 
 kube::init(){
-export master-hostname="master-node"
+export masterhostname="master-node"
 export hosts=$(cat <<EOF
 192.168.1.211 master-node
 192.168.1.212 node-1
@@ -13,7 +13,7 @@ EOF
 kube::master(){
 kube::init
 echo $master-hostname
-sudo hostnamectl set-hostname $master-hostname
+sudo hostnamectl set-hostname $masterhostname
 sudo cat /etc/hostname
 sudo kubeadm config images pull
 sudo kubeadm reset -f
