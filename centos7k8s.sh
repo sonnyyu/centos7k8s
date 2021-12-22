@@ -1,7 +1,20 @@
 #!/bin/bash
 
+kube::init(){
+export master-hostname="master-node"
+export hosts=$(cat <<EOF
+192.168.1.211 master-node
+192.168.1.212 node-1
+EOF
+)
+}
+
+
 kube::master(){
-hostnamectl set-hostname master-node
+kube::init
+echo $master-hostname
+sudo hostnamectl set-hostname $master-hostname
+sudo cat /etc/hostname
 sudo kubeadm config images pull
 sudo kubeadm reset -f
 sudo kubeadm init \
@@ -19,9 +32,9 @@ sudo kubectl get nodes
 
 
 k8s::install_prerequisites(){
+echo  $hosts
 sudo cat <<EOF> /etc/hosts
-192.168.1.211 master-node
-192.168.1.212 node-1 
+$hosts  
 EOF
 sudo cat  /etc/hosts
 sudo systemctl stop firewalld
@@ -110,6 +123,7 @@ sudo yum remove -y kubelet kubeadm kubectl
 
 kube::install(){
 #kube::uninstall
+kube::init
 k8s::install_prerequisites
 k8s::install_docker
 k8s::install_kubeadm
@@ -137,4 +151,3 @@ main(){
 }
 
 main $@
-
